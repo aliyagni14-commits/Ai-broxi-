@@ -1,39 +1,84 @@
-import os
+import streamlit as st
 import urllib.parse
-import re
-from datetime import datetime
 
-print("=== ASISTEN AI AKTIF (VERSI UPDATE MAXIMAL) ===")
-print("Ketik 'keluar' untuk menghentikan program.\n")
+# 1. Konfigurasi Tampilan Halaman Streamlit
+st.set_page_config(page_title="Asisten AI Mobile", page_icon="📱", layout="centered")
 
-while True:
-    perintah = input("User: ").lower().strip()
+st.title("📱 ASISTEN AI (VERSI STREAMLIT)")
+st.write("Gunakan fitur di bawah untuk membuka aplikasi atau melakukan pencarian.")
 
-    if perintah == "keluar":
-        print("AI: Sampai jumpa, bro!")
-        break
+# 2. INPUT DARI USER
+perintah = st.text_input("Ketik perintah kamu di sini (contoh: 'cari baju baru' atau 'buka roblox'):")
+perintah = perintah.lower().strip()
 
-    # 🎮 BARU: FITUR GAME & HIBURAN
-    elif perintah == "buka roblox":
-        print("AI: Membuka Roblox... Selamat mabar!")
-        os.system("am start -n com.roblox.client/com.roblox.client.ActivitySplash")
+# 3. LOGIKA PROSES PERINTAH
+if perintah:
+    # 🎮 FITUR GAME & SOSMED VIA DEEP LINK (MEMBUKA APLIKASI HP)
+    if "roblox" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka Roblox!")
+        # Menggunakan skema URL resmi Roblox agar langsung membuka aplikasi di HP
+        st.link_button("🎮 Buka Aplikasi Roblox", "roblox://")
 
-    elif perintah == "buka tiktok":
-        print("AI: Membuka TikTok...")
-        os.system("am start -n com.zhiliaoapp.musically/com.ss.android.ugc.aweme.splash.SplashActivity")
+    elif "whatsapp" in perintah or "wa" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka WhatsApp!")
+        st.link_button("💬 Buka WhatsApp", "whatsapp://")
 
-    elif perintah in ["buka spotify", "buka musik"]:
-        print("AI: Membuka Spotify... Enjoy musiknya!")
-        os.system("am start -n com.spotify.music/com.spotify.music.MainActivity")
+    elif "youtube" in perintah or "yt" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka YouTube!")
+        st.link_button("📺 Buka YouTube", "https://youtube.com")
 
-    # 📱 FITUR UTAMA: MEMBUKA APLIKASI DI HP
-    elif perintah == "buka whatsapp":
-        print("AI: Membuka WhatsApp...")
-        os.system("am start -n com.whatsapp/com.whatsapp.Main")
+    elif "instagram" in perintah or "ig" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka Instagram!")
+        st.link_button("📸 Buka Instagram", "instagram://")
 
-    elif perintah in ["buka youtube", "buka yt"]:
-        print("AI: Membuka YouTube...")
-        os.system("am start -n com.google.android.youtube/com.google.android.apps.youtube.app.watchwhile.WatchWhileActivity")
+    elif "facebook" in perintah or "fb" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka Facebook!")
+        st.link_button("🔵 Buka Facebook", "fb://")
+
+    elif "spotify" in perintah or "musik" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka Spotify!")
+        st.link_button("🎵 Buka Spotify", "spotify://")
+
+    # 🔍 FITUR SEARCH VIDEO YOUTUBE
+    elif perintah.startswith("cari video "):
+        video = perintah.replace("cari video ", "").strip()
+        if video:
+            query_encoded = urllib.parse.quote(video)
+            url_yt = f"https://youtube.com/results?search_query={query_encoded}"
+            st.success(f"Hasil pencarian untuk video: '{video}'")
+            st.link_button(f"📺 Tonton '{video}' di YouTube", url_yt)
+
+    # 🔍 FITUR GOOGLE SEARCH
+    elif perintah.startswith("pengen cari ") or perintah.startswith("cari "):
+        # Mengambil keyword pencarian
+        cari = perintah.replace("pengen cari ", "").replace("cari ", "").strip()
+        if cari:
+            query_encoded = urllib.parse.quote(cari)
+            url_google = f"https://google.com{query_encoded}"
+            st.success(f"Tombol pencarian Google untuk: '{cari}'")
+            st.link_button(f"🔍 Cari '{cari}' di Google", url_google)
+
+    # 🧮 FITUR HITUNG / KALKULATOR CEPAT
+    elif perintah.startswith("hitung "):
+        soal = perintah.replace("hitung ", "").strip()
+        soal = soal.replace("×", "*").replace("x", "*").replace("X", "*").replace(":", "/")
+        try:
+            # Evaluasi matematika sederhana yang aman di Streamlit
+            hasil = eval(soal, {"__builtins__": None}, {})
+            st.metric(label=f"Hasil dari {soal}", value=hasil)
+        except Exception:
+            st.error("Perhitungan tidak valid, bro. Coba angka biasa (misal: hitung 5*5)")
+
+    # 📚 TANYA JAWAB TOKOH
+    elif "einstein" in perintah:
+        st.info("💡 Albert Einstein adalah fisikawan terkenal yang mengembangkan Teori Relativitas.")
+    elif "ronaldo" in perintah:
+        st.info("⚽ Cristiano Ronaldo adalah salah satu pemain sepak bola terbaik asal Portugal.")
+    elif "messi" in perintah:
+        st.info("⚽ Lionel Messi adalah salah satu pemain sepak bola terbaik asal Argentina.")
+
+    else:
+        st.warning("AI tidak mengerti perintah itu. Coba ketik 'buka roblox' atau 'cari sepedah baru'.")
 
     elif perintah == "buka instagram":
         print("AI: Membuka Instagram...")
