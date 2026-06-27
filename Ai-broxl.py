@@ -1,39 +1,87 @@
 import streamlit as st
 import urllib.parse
 
-# 1. Konfigurasi Halaman Utama
+# 1. Seting Tampilan Awal Halaman Web
 st.set_page_config(page_title="Asisten AI Mobile", page_icon="📱", layout="centered")
 
-def main():
-    st.title("📱 ASISTEN AI (VERSI STREAMLIT)")
-    st.write("Gunakan fitur di bawah untuk membuka aplikasi atau melakukan pencarian.")
+st.title("📱 ASISTEN AI (VERSI STREAMLIT)")
+st.write("Ketik perintah atau gunakan tombol cepat di bawah.")
 
-    # 2. Input teks dari pengguna
-    perintah = st.text_input("Ketik perintah kamu di sini (contoh: 'buka roblox' atau 'cari baju baru'):")
-    perintah = perintah.lower().strip()
+# 2. Input Teks dari User
+perintah = st.text_input("Ketik perintah kamu di sini (contoh: 'buka roblox' atau 'cari baju baru'):").lower().strip()
 
-    # 3. Logika Pemrosesan Perintah
-    if perintah:
-        # --- Kelompok Buka Aplikasi (Deep Link Android/iOS) ---
-        if "roblox" in perintah:
-            st.success("Silakan klik tombol di bawah untuk membuka Roblox!")
-            st.link_button("🎮 Buka Aplikasi Roblox", "roblox://")
+# Daftar Deep Link Aplikasi (Aman dari eror indentasi)
+APPLIKASI = {
+    "roblox": ("🎮 Buka Aplikasi Roblox", "roblox://"),
+    "whatsapp": ("💬 Buka WhatsApp", "whatsapp://"),
+    "wa": ("💬 Buka WhatsApp", "whatsapp://"),
+    "instagram": ("📸 Buka Instagram", "instagram://"),
+    "ig": ("📸 Buka Instagram", "instagram://"),
+    "facebook": ("🔵 Buka Facebook", "fb://"),
+    "fb": ("🔵 Buka Facebook", "fb://"),
+    "spotify": ("🎵 Buka Spotify", "spotify://"),
+    "musik": ("🎵 Buka Spotify", "spotify://"),
+    "youtube": ("📺 Buka YouTube", "https://youtube.com"),
+    "yt": ("📺 Buka YouTube", "https://youtube.com")
+}
 
-        elif "whatsapp" in perintah or "wa" in perintah:
-            st.success("Silakan klik tombol di bawah untuk membuka WhatsApp!")
-            st.link_button("💬 Buka WhatsApp", "whatsapp://")
+# 3. Logika Proses Perintah
+if perintah:
+    # Cek apakah perintahnya ada di daftar buka aplikasi
+    app_terdeteksi = False
+    for keyword, (label, link) in APPLIKASI.items():
+        if keyword in perintah:
+            # Cegah tabrakan dengan fitur pencarian video youtube
+            if keyword in ["youtube", "yt"] and perintah.startswith("cari video "):
+                continue
+            st.success(f"Silakan klik tombol di bawah untuk membuka aplikasi!")
+            st.link_button(label, link)
+            app_terdeteksi = True
+            break
 
-        elif "youtube" in perintah or "yt" in perintah and not perintah.startswith("cari video "):
-            st.success("Silakan klik tombol di bawah untuk membuka YouTube!")
-            st.link_button("📺 Buka YouTube", "https://www.youtube.com")
+    # Jika bukan buka aplikasi, cek fitur lainnya
+    if not app_terdeteksi:
+        # Fitur Cari Video YouTube
+        if perintah.startswith("cari video "):
+            video = perintah.replace("cari video ", "").strip()
+            if video:
+                url_yt = f"https://youtube.com/results?search_query={urllib.parse.quote(video)}"
+                st.success(f"Hasil pencarian untuk video: '{video}'")
+                st.link_button(f"📺 Tonton '{video}' di YouTube", url_yt)
+            else:
+                st.warning("Mau cari video apa, bro?")
 
-        elif "instagram" in perintah or "ig" in perintah:
-            st.success("Silakan klik tombol di bawah untuk membuka Instagram!")
-            st.link_button("📸 Buka Instagram", "instagram://")
+        # Fitur Cari Google
+        elif perintah.startswith("pengen cari ") or perintah.startswith("cari "):
+            cari = perintah.replace("pengen cari ", "").replace("cari ", "").strip()
+            if cari:
+                url_google = f"https://google.com{urllib.parse.quote(cari)}"
+                st.success(f"Tombol pencarian Google untuk: '{cari}'")
+                st.link_button(f"🔍 Cari '{cari}' di Google", url_google)
+            else:
+                st.warning("Mau cari apa di Google?")
 
-        elif "facebook" in perintah or "fb" in perintah:
-            st.success("Silakan klik tombol di bawah untuk membuka Facebook!")
-            st.link_button("🔵 Buka Facebook", "fb://")
+        # Fitur Kalkulator Matematika
+        elif perintah.startswith("hitung "):
+            soal = perintah.replace("hitung ", "").strip()
+            soal = soal.replace("×", "*").replace("x", "*").replace("X", "*").replace(":", "/")
+            try:
+                hasil = eval(soal, {"__builtins__": None}, {})
+                st.metric(label=f"Hasil dari {soal}", value=hasil)
+            except Exception:
+                st.error("Perhitungan tidak valid, bro. Contoh: hitung 5*5")
+
+        # Fitur Tanya Jawab Tokoh
+        elif "einstein" in perintah:
+            st.info("💡 Albert Einstein adalah fisikawan terkenal yang mengembangkan Teori Relativitas.")
+        elif "ronaldo" in perintah:
+            st.info("⚽ Cristiano Ronaldo adalah salah satu pemain sepak bola terbaik asal Portugal.")
+        elif "messi" in perintah:
+            st.info("⚽ Lionel Messi adalah salah satu pemain sepak bola terbaik asal Argentina.")
+        
+        # Respon jika perintah tidak ada yang cocok
+        else:
+            st.warning("AI tidak mengerti perintah itu. Coba ketik 'buka roblox' atau 'cari baju baru'.")
 
         elif "spotify" in perintah or "musik" in perintah:
             st.success("Silakan klik tombol di bawah untuk membuka Spotify!")
