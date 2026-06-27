@@ -1,29 +1,28 @@
 import streamlit as st
 import urllib.parse
 
-# 1. Konfigurasi Tampilan Halaman Streamlit
+# 1. Konfigurasi Halaman Streamlit
 st.set_page_config(page_title="Asisten AI Mobile", page_icon="📱", layout="centered")
 
 st.title("📱 ASISTEN AI (VERSI STREAMLIT)")
 st.write("Gunakan fitur di bawah untuk membuka aplikasi atau melakukan pencarian.")
 
-# 2. INPUT DARI USER
-perintah = st.text_input("Ketik perintah kamu di sini (contoh: 'cari baju baru' atau 'buka roblox'):")
+# 2. Input dari User
+perintah = st.text_input("Ketik perintah kamu di sini (contoh: 'buka roblox' atau 'cari baju baru'):")
 perintah = perintah.lower().strip()
 
-# 3. LOGIKA PROSES PERINTAH
+# 3. Logika Proses Perintah (Menggunakan Struktur yang Aman)
 if perintah:
-    # 🎮 FITUR GAME & SOSMED VIA DEEP LINK (MEMBUKA APLIKASI HP)
+    # --- Kelompok Buka Aplikasi (Deep Link) ---
     if "roblox" in perintah:
         st.success("Silakan klik tombol di bawah untuk membuka Roblox!")
-        # Menggunakan skema URL resmi Roblox agar langsung membuka aplikasi di HP
         st.link_button("🎮 Buka Aplikasi Roblox", "roblox://")
 
     elif "whatsapp" in perintah or "wa" in perintah:
         st.success("Silakan klik tombol di bawah untuk membuka WhatsApp!")
         st.link_button("💬 Buka WhatsApp", "whatsapp://")
 
-    elif "youtube" in perintah or "yt" in perintah:
+    elif "youtube" in perintah or "yt" in perintah and not perintah.startswith("cari video "):
         st.success("Silakan klik tombol di bawah untuk membuka YouTube!")
         st.link_button("📺 Buka YouTube", "https://youtube.com")
 
@@ -34,6 +33,53 @@ if perintah:
     elif "facebook" in perintah or "fb" in perintah:
         st.success("Silakan klik tombol di bawah untuk membuka Facebook!")
         st.link_button("🔵 Buka Facebook", "fb://")
+
+    elif "spotify" in perintah or "musik" in perintah:
+        st.success("Silakan klik tombol di bawah untuk membuka Spotify!")
+        st.link_button("🎵 Buka Spotify", "spotify://")
+
+    # --- Kelompok Fitur Pencarian ---
+    elif perintah.startswith("cari video "):
+        video = perintah.replace("cari video ", "").strip()
+        if video:
+            query_encoded = urllib.parse.quote(video)
+            url_yt = f"https://youtube.com/results?search_query={query_encoded}"
+            st.success(f"Hasil pencarian untuk video: '{video}'")
+            st.link_button(f"📺 Tonton '{video}' di YouTube", url_yt)
+        else:
+            st.warning("Mau cari video apa, bro?")
+
+    elif perintah.startswith("pengen cari ") or perintah.startswith("cari "):
+        cari = perintah.replace("pengen cari ", "").replace("cari ", "").strip()
+        if cari:
+            query_encoded = urllib.parse.quote(cari)
+            url_google = f"https://google.com{query_encoded}"
+            st.success(f"Tombol pencarian Google untuk: '{cari}'")
+            st.link_button(f"🔍 Cari '{cari}' di Google", url_google)
+        else:
+            st.warning("Mau cari apa di Google?")
+
+    # --- Kelompok Hitung-hitungan ---
+    elif perintah.startswith("hitung "):
+        soal = perintah.replace("hitung ", "").strip()
+        soal = soal.replace("×", "*").replace("x", "*").replace("X", "*").replace(":", "/")
+        try:
+            hasil = eval(soal, {"__builtins__": None}, {})
+            st.metric(label=f"Hasil dari {soal}", value=hasil)
+        except Exception:
+            st.error("Perhitungan tidak valid, bro. Contoh: hitung 5*5")
+
+    # --- Kelompok Tanya Jawab Tokoh ---
+    elif "einstein" in perintah:
+        st.info("💡 Albert Einstein adalah fisikawan terkenal yang mengembangkan Teori Relativitas.")
+    elif "ronaldo" in perintah:
+        st.info("⚽ Cristiano Ronaldo adalah salah satu pemain sepak bola terbaik asal Portugal.")
+    elif "messi" in perintah:
+        st.info("⚽ Lionel Messi adalah salah satu pemain sepak bola terbaik asal Argentina.")
+
+    # --- Jika Perintah Tidak Dikenal ---
+    else:
+        st.warning("AI tidak mengerti perintah itu. Coba ketik 'buka roblox' atau 'cari sepatu baru'.")
 
     elif "spotify" in perintah or "musik" in perintah:
         st.success("Silakan klik tombol di bawah untuk membuka Spotify!")
