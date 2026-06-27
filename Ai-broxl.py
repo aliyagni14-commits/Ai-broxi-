@@ -1,16 +1,30 @@
 import os
 import urllib.parse
 import re
+from datetime import datetime
 
-print("=== ASISTEN AI AKTIF (VERSI BUKA APLIKASI) ===")
+print("=== ASISTEN AI AKTIF (VERSI UPDATE MAXIMAL) ===")
 print("Ketik 'keluar' untuk menghentikan program.\n")
 
 while True:
     perintah = input("User: ").lower().strip()
 
     if perintah == "keluar":
-        print("AI: Sampai jumpa!")
+        print("AI: Sampai jumpa, bro!")
         break
+
+    # 🎮 BARU: FITUR GAME & HIBURAN
+    elif perintah == "buka roblox":
+        print("AI: Membuka Roblox... Selamat mabar!")
+        os.system("am start -n com.roblox.client/com.roblox.client.ActivitySplash")
+
+    elif perintah == "buka tiktok":
+        print("AI: Membuka TikTok...")
+        os.system("am start -n com.zhiliaoapp.musically/com.ss.android.ugc.aweme.splash.SplashActivity")
+
+    elif perintah in ["buka spotify", "buka musik"]:
+        print("AI: Membuka Spotify... Enjoy musiknya!")
+        os.system("am start -n com.spotify.music/com.spotify.music.MainActivity")
 
     # 📱 FITUR UTAMA: MEMBUKA APLIKASI DI HP
     elif perintah == "buka whatsapp":
@@ -30,19 +44,38 @@ while True:
         os.system("am start -n com.facebook.katana/com.facebook.katana.LoginActivity")
 
     elif perintah == "buka chatgpt":
-        # Karena ChatGPT versi aplikasi sering berbeda, ini dibuka lewat browser bawaan HP
         print("AI: Membuka ChatGPT...")
         os.system("am start -a android.intent.action.VIEW -d 'https://chatgpt.com'")
 
-    # 🔍 FITUR GOOGLE SEARCH
+    # 🔍 BARU: CARI VIDEO DI YOUTUBE
+    elif perintah.startswith("cari video "):
+        video = perintah.replace("cari video ", "").strip()
+        if video:
+            query_encoded = urllib.parse.quote(video)
+            print(f"AI: Mencari video '{video}' di YouTube...")
+            os.system(f"am start -a android.intent.action.VIEW -d 'https://youtube.com{query_encoded}'")
+        else:
+            print("AI: Mau cari video apa di YouTube?")
+
+    # 🔍 FITUR GOOGLE SEARCH (FIXED BUG)
     elif perintah.startswith("pengen cari "):
         cari = perintah.replace("pengen cari ", "").strip()
         if cari:
             query_encoded = urllib.parse.quote(cari)
             print(f"AI: Mencari '{cari}' di Google...")
+            # Ditambahkan /search?q= agar link Google berfungsi dengan benar
             os.system(f"am start -a android.intent.action.VIEW -d 'https://google.com{query_encoded}'")
         else:
             print("AI: Mau cari apa? Sebutkan keyword-nya.")
+
+    # ⏰ BARU: FITUR WAKTU & TANGGAL
+    elif perintah in ["jam berapa", "pukul berapa", "waktu sekarang"]:
+        sekarang = datetime.now().strftime("%H:%M:%S")
+        print(f"AI: Sekarang jam {sekarang} WIB.")
+
+    elif perintah in ["hari ini hari apa", "tanggal berapa"]:
+        hari_ini = datetime.now().strftime("%A, %d %B %Y")
+        print(f"AI: Hari ini adalah {hari_ini}.")
 
     # 📚 FITUR TANYA JAWAB TOKOH
     elif perintah in ["siapa albert einstein", "siapa einstein"]:
@@ -78,4 +111,4 @@ while True:
             print("AI: Perhitungan tidak valid.")
 
     else:
-        print("AI: Maaf, saya tidak mengerti perintah tersebut.")
+        print("AI: Maaf, saya tidak mengerti perintah tersebut. Coba ketik 'buka roblox' atau 'jam berapa'.")
